@@ -39,46 +39,46 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-client_id = os.getenv("SPOTIFY_CLIENT_ID")
-client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+# client_id = os.getenv("SPOTIFY_CLIENT_ID")
+# client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
-print("Client ID:", client_id)
-print("Client Secret:", client_secret)
+# print("Client ID:", client_id)
+# print("Client Secret:", client_secret)
 
-# Spotify API Functions
-def get_token(client_id, client_secret):
-    client_id = os.getenv("SPOTIFY_CLIENT_ID")
-    client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+# # Spotify API Functions
+# def get_token(client_id, client_secret):
+#     client_id = os.getenv("SPOTIFY_CLIENT_ID")
+#     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
     
-    auth_url = "https://accounts.spotify.com/api/token"
-    auth_response = requests.post(auth_url, {
-        'grant_type': 'client_credentials',
-        'client_id': client_id,
-        'client_secret': client_secret,
-    })
-    if auth_response.status_code == 200:
-        return auth_response.json()['access_token']
-    else:
-        st.error("Failed to retrieve token")
-        return None
+#     auth_url = "https://accounts.spotify.com/api/token"
+#     auth_response = requests.post(auth_url, {
+#         'grant_type': 'client_credentials',
+#         'client_id': client_id,
+#         'client_secret': client_secret,
+#     })
+#     if auth_response.status_code == 200:
+#         return auth_response.json()['access_token']
+#     else:
+#         st.error("Failed to retrieve token")
+#         return None
 
-def search_for_artist(token, artist_name):
-    search_url = f"https://api.spotify.com/v1/search?q={artist_name}&type=artist&limit=1"
-    response = requests.get(search_url, headers={"Authorization": f"Bearer {token}"})
-    if response.status_code == 200 and response.json()['artists']['items']:
-        return response.json()['artists']['items'][0]['id']
-    else:
-        st.error(f"No artist found with the name {artist_name}")
-        return None
+# def search_for_artist(token, artist_name):
+#     search_url = f"https://api.spotify.com/v1/search?q={artist_name}&type=artist&limit=1"
+#     response = requests.get(search_url, headers={"Authorization": f"Bearer {token}"})
+#     if response.status_code == 200 and response.json()['artists']['items']:
+#         return response.json()['artists']['items'][0]['id']
+#     else:
+#         st.error(f"No artist found with the name {artist_name}")
+#         return None
 
-def get_songs_by_artist(token, artist_id):
-    tracks_url = f"https://api.spotify.com/v1/artists/{artist_id}/top-tracks?market=US"
-    response = requests.get(tracks_url, headers={"Authorization": f"Bearer {token}"})
-    if response.status_code == 200:
-        return response.json()['tracks']
-    else:
-        st.error("Failed to retrieve songs")
-        return []
+# def get_songs_by_artist(token, artist_id):
+#     tracks_url = f"https://api.spotify.com/v1/artists/{artist_id}/top-tracks?market=US"
+#     response = requests.get(tracks_url, headers={"Authorization": f"Bearer {token}"})
+#     if response.status_code == 200:
+#         return response.json()['tracks']
+#     else:
+#         st.error("Failed to retrieve songs")
+#         return []
 
 # Load data
 def load_data():
@@ -390,7 +390,7 @@ def page_music_analysis():
         
         return most_common_words
 
-    # 在 Streamlit 中使用
+
     if st.button('Show Most Common Words in Track Names'):
         # 假设 df_spo 已经加载并可用
         # df_spo = pd.read_csv('your_dataset.csv')
@@ -467,31 +467,31 @@ def page_music_analysis():
 
 
 
-def page_top_songs():
-    st.title("Top Songs by Artists")
+# def page_top_songs():
+#     st.title("Top Songs by Artists")
     
-    # Use your Streamlit secrets for these values or environment variables
-    client_id = st.secrets["SPOTIFY_CLIENT_ID"]
-    client_secret = st.secrets["SPOTIFY_CLIENT_SECRET"]
+#     # Use your Streamlit secrets for these values or environment variables
+#     client_id = st.secrets["SPOTIFY_CLIENT_ID"]
+#     client_secret = st.secrets["SPOTIFY_CLIENT_SECRET"]
     
-    token = get_token(client_id, client_secret)
-    if token:
-        artist_names = ["Ariana Grande", "Post Malone", "Daddy Yankee"]
-        for artist_name in artist_names:
-            artist_id = search_for_artist(token, artist_name)
-            if artist_id:
-                songs = get_songs_by_artist(token, artist_id)
-                st.subheader(f"Top songs by {artist_name}:")
-                # Make sure to display something even if songs is empty
-                if not songs:
-                    st.write(f"No songs found for {artist_name}")
-                    continue
+#     token = get_token(client_id, client_secret)
+#     if token:
+#         artist_names = ["Ariana Grande", "Post Malone", "Daddy Yankee"]
+#         for artist_name in artist_names:
+#             artist_id = search_for_artist(token, artist_name)
+#             if artist_id:
+#                 songs = get_songs_by_artist(token, artist_id)
+#                 st.subheader(f"Top songs by {artist_name}:")
+#                 # Make sure to display something even if songs is empty
+#                 if not songs:
+#                     st.write(f"No songs found for {artist_name}")
+#                     continue
                 
-                # We will display song names and their popularity
-                for i, song in enumerate(songs[:10], start=1):  # Show top 10 songs
-                    st.write(f"{i}. {song['name']} - Popularity: {song['popularity']}")
-    else:
-        st.error("Failed to authenticate with Spotify API")
+#                 # We will display song names and their popularity
+#                 for i, song in enumerate(songs[:10], start=1):  # Show top 10 songs
+#                     st.write(f"{i}. {song['name']} - Popularity: {song['popularity']}")
+#     else:
+#         st.error("Failed to authenticate with Spotify API")
 
         
 
@@ -523,8 +523,8 @@ def main():
         page_music_analysis()
     elif page == "Answer the Questions":
         page_answer_questions()
-    elif page == "Top Songs":
-        page_top_songs()
+    # elif page == "Top Songs":
+    #     page_top_songs()
 
 if __name__ == "__main__":
     main()
