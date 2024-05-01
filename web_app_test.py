@@ -370,7 +370,7 @@ def page_music_analysis():
     "then", "once", "here", "there", "when", "where", "why", "how", "all", "any",
     "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not",
     "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just",
-    "don", "should", "now", ":"
+    "don", "should", "now", ":","/"
 ])
 
     def most_common_words(data):
@@ -459,14 +459,6 @@ def page_music_analysis():
 
 
 
-
-
-
-
-
-
-
-
 def page_top_songs():
     st.title("Top Songs by Artists")
     
@@ -523,8 +515,8 @@ def main():
         page_music_analysis()
     elif page == "Answer the Questions":
         page_answer_questions()
-    # elif page == "Top Songs":
-    #     page_top_songs()
+    elif page == "Top Songs":
+        page_top_songs()
 
 if __name__ == "__main__":
     main()
