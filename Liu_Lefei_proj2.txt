@@ -1,0 +1,39 @@
+﻿1. What are the strengths of your data modeling format?
+
+
+1) I did extensive exploration and visualization analysis of the data, including basic statistics, correlation matrices, music genre distribution, music popularity distribution... which helps me to gain deep insights into the data characteristics and trends.
+2) I did detailed analysis of artists' performance (artist analysis), including the most popular songs, artist occurrence frequency, music features...and compared them with market performance(sales amounts), which will help me understand the artists' influence in the market.
+3) I used different machine learning models to predict music popularity and calculated the MSE of the models, demonstrating your ability to apply machine learning and deep understanding of the data.
+ 
+2. What are the weaknesses?  (Does your data model support?  Sorting the information? Re-ordering it?  Only obtaining a certain subset of the information?) 
+
+
+Although I applied machine learning models, the evaluation of these models seems to focus only on MSE. Including additional evaluation techniques, such as cross-validation, could offer a more robust assessment of the models' performance.
+
+
+3. How do you store your data on disk?
+
+
+Use python code to store.
+For YouTube comments:
+df.to_csv('xxx.csv', index=False)
+ 
+For sales amounts data:
+df_ag = pd.DataFrame(dict([(k, pd.Series(v)) for k,v in data_pm.items()]))
+df_ag.to_csv('amazon_pm.csv', index=False)
+print("Data saved to 'amazon_pm.csv'")
+
+
+4. Let’s say you find another data source that relates to all 3 of your data sources (i.e. a data source that relates to your existing data).  How would you extend your model to include this new data source?  How would that change the interface? 
+
+
+I've already used a fourth data source by scraping comments from YouTube videos and generating word cloud images.(Please see my new milestone 1_update) Through these word clouds, I can visually show the most common words in the comments. It can help to understand audience feedback and sentiment, thus helping me gain a deeper understanding of this topic.
+ 
+
+5.How would you add a new attribute to your data (for example: imagine you had a lat/long column in a database.  You might use that to access an API to get a city name.  How would you add city name to your data?) 
+
+
+If I want to add release_time of each song, I will use the SpotifyAPI to search for each song and get their track ID. Then, use this ID to get detailed information about each song, including release time. Match the release time with the songs in the original data to ensure that they correspond to each other. Add release time information as a new column to associate with the songs in the original data.
+
+code:
+df['release_date'] = df['track_id'].apply(get_release_date)

@@ -1,0 +1,69 @@
+﻿Q1: DATA SOURCE 1:
+URL for website or API:
+https://www.amazon.com/s?k=ariana+grande+album&crid=3HFYOSY8GYNN&sprefix=%2Caps%2C132&ref=nb_sb_ss_recent_5_0_recent
+ 
+https://www.amazon.com/s?k=post+malone+album&crid=23VOU7TJR8RKE&sprefix=%2Caps%2C191&ref=nb_sb_ss_recent_3_0_recent
+ 
+Brief description of data/API (what it contains, what it represents, etc.):
+These are Ariana Grande and Post Malone’s album sales on Amazon. I want to get sales amount data, sum their amounts, and compare them.
+ 
+ 
+Q2: DATA SOURCE 2:
+URL for website or API:
+https://developer.spotify.com/documentation/web-api
+ 
+Brief description of data/API (what it contains, what it represents, etc.):
+The Spotify API provides access to many contents, including information about artists, their albums, and individual tracks. I fetch three artists’ top 10 songs.
+ 
+ 
+Q3: DATA SOURCE 3:
+URL for website to scrape or download, or API:
+https://www.kaggle.com/datasets/lehaknarnauli/spotify-datasets/code
+ 
+Brief description of data/API (what it contains, what it represents, etc.):
+This is a URL to download the SpotifyFeature.csv, which contains a lot of information worth analyzing.
+ 
+Q4: DATA SOURCE 4:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+URL for website to scrape or download, or API:
+https://www.youtube.com/watch?v=KNtJGQkC-WI
+ 
+https://www.youtube.com/watch?v=VzEqqSUWNjw
+ 
+https://www.youtube.com/watch?v=VvFUraacW1c
+ 
+Brief description of data/API (what it contains, what it represents, etc.):
+These are YouTube URLs of Ariana Grande, Post Malone, and Daddy Yankee’s MV. I fetch their MV’s comments.
+ 
+ 
+ 
+ 
+ 
+Q5: Briefly (4-6 sentence) describe how you might combine these datasets (i.e. how do they relate to each other?  What are the commonalities between them?  How might you connect them?  How do they enrich each other?). For example, if you scraped census data that contains a person’s “home town”, google maps API data, and data with median income per zip code, you might discuss how you would use the google maps API to translate the hometown to a particular zip code, and then combine that with the income data. 
+ 
+Firstly, I will download the SpotifyFeature.csv dataset. I will do basic data cleaning, including removing missing values and duplicates. Then, a simple inspection and description of the data were conducted.
+ 
+Then, I will explore and visualize data:
+l  Displayed basic information of data, including mean, standard deviation...
+l  Plotted a heatmap of the correlation matrix to observe the relationships between numerical variables.
+l  Created a bar plot showing the distribution of music genres to visualize the quantity distribution of different genres.
+l  Generated a histogram of music popularity to illustrate the distribution of popularity.
+l  Plotted a bar chart of average popularity by genre to showcase the average popularity of each genre.
+l  Plotted a bar chart showing the duration of music across different genres, illustrating the duration distribution of music genres.
+ 
+Also, I will analyze the information about artists:
+l  Identified the most popular songs and displayed the top 10 songs based on popularity. Retrieved the artists of these songs by using Spotify API. Compare their amazon sales amounts to see the performance of the singer in the market. And scrape comments from their YouTube MVs to create wordclouds.
+l  Analyzed the occurrence frequency of artists and displayed the top 10 artists with the highest occurrence frequency.
+l  Do an analysis of the music characteristics of artists, including danceability, energy, and tempo, and displayed the top 10 artists with the highest values for these characteristics.
+l  Plotted relationship graphs of danceability, energy, and tempo for specified artists.
+ 
+Furthermore, I will use machine learning that I learned this semester to analysis data:
+l  Used Lasso Regression, Ridge Regression, and random forest regression model to predict the popularity of music and calculated the MSE of the model.
+ 
+ 
+ 
+ 
+ 
+ 
+G5: Briefly (4-6 sentence) describe what you might hope to find in the data overall. Basically, what are you trying to accomplish in this research project? What relationship are you trying to explore, or what pattern are you trying to discover, etc.
+ 
+In this project, the aim is to explore various aspects of music data obtained from Spotify to gain insights into the characteristics and trends of contemporary music. I hope to find relationships between different musical features, gain a deeper understanding of the dynamics of modern music and to find any underlying trends in our data.
