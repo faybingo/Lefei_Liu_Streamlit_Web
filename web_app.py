@@ -31,83 +31,41 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import io
-
 import streamlit as st
 import pandas as pd
-import seaborn as sns
+import requests
+import base64
 import matplotlib.pyplot as plt
+import seaborn as sns
 import os
-import io
-client_id='ec31934c1e8f48a788084e4210a2d355'
-client_secret='ab60d2175d7347e79df96deffb125f6a'
 
-# Function to load data
+
+# Load data
 def load_data():
     try:
-        # Assuming the script is being run from the directory where 'total_data.csv' is located
-        # If that's not the case, you might need to adjust the 'file_path'
-        file_path = 'total_data.csv'
-        df_spo = pd.read_csv(file_path)
+        df_spo = pd.read_csv('total_data.csv')
         return df_spo
     except Exception as e:
         st.error(f"Failed to load data: {e}")
         return None
-    
 
-#get token
-def get_token():
-    client_id='ec31934c1e8f48a788084e4210a2d355'
-    client_secret='ab60d2175d7347e79df96deffb125f6a'
-    auth_string = client_id + ":" + client_secret
-    auth_bytes = auth_string.encode("utf-8")
-    auth_base64 = str(base64.b64encode(auth_bytes), "utf-8")
-                    
-    url = "https://accounts.spotify.com/api/token"
-    headers = {
-        "Authorization": "Basic " + auth_base64,
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-                    
-    data = {"grant_type": "client_credentials"}
-    result = requests.post(url, headers=headers, data=data)
-    json_result = result.json()
-    token = json_result["access_token"]
-    return token
-
-def get_auth_header(token):
-    client_id='ec31934c1e8f48a788084e4210a2d355'
-    client_secret='ab60d2175d7347e79df96deffb125f6a'
-    return {"Authorization": "Bearer " + token}
-
-#get artists' id
-def search_for_artist(token, artist_name):
-    url = "https://api.spotify.com/v1/search"
-    headers = get_auth_header(token)
-    query = f"?q={artist_name}&type=artist&limit=1"
-                    
-    query_url = url + query
-    result = requests.get(query_url, headers=headers)
-    json_result = result.json()["artists"]["items"]
-                    
-    if len(json_result) == 0:
-        print("No artist with this name exists.")
-        return None
-                    
-    return json_result[0]
-
-#get artists' songs according to their id
-def get_songs_by_artist(token, artist_id):
-    url = f"https://api.spotify.com/v1/artists/{artist_id}/top-tracks?country=US"
-    headers = get_auth_header(token)
-    result = requests.get(url, headers=headers)
-    json_result = result.json()["tracks"]
-    return json_result
-
-# Define a function for the music analysis page
+# Music Analysis Page
 def page_music_analysis():
     df_spo = load_data()
     if df_spo is not None:
         st.title("Music Data Analysis")
+        st.markdown("""
+            **Developed by: Lefei Liu
+
+            ### How to Use This Web
+            - **Interactivity:** You can interact with the app by clicking on buttons like 'Show Data Cleaning Information', 'Show Correlation of Each Variable', etc. Each button will provide detailed insights or visualizations based on the underlying music data.
+            - **Charts and Plots:** The charts represent various analytical insights such as the correlation between musical features, popularity distributions, and more.
+            - **Conclusions:** After exploring the data, the app provides conclusions based on the analysis such as the most popular artists, the characteristics of popular music, etc.
+
+            ### Major Gotchas
+            - **Performance:** Random Forest may cost 5 minutes to run.
+            - **Improvements:** The application can be further improved by integrating real-time data and using more advanced machine learning models for predictions.
+        """)
 
         # Button to show data cleaning information
         if st.button('Show Data Cleaning Information'):
@@ -172,18 +130,293 @@ def page_music_analysis():
                 popular_songs_df = most_popular_songs(df_spo)
                 plot_most_popular_songs(popular_songs_df)
                 st.write(popular_songs_df)
-                st.write("We can see top 10 songs' artists are Ariana Grande,Post Malone and Daddy Yankee. So I will extract their top 10 songs from spotify api, and do later analysis based on these three artists.")
+                st.write("We can see that the top 10 songs' artists are Ariana Grande, Post Malone, and Daddy Yankee. Therefore, I will extract their top 10 songs from the Spotify API (under the 'Top Songs' page) and conduct further analysis based on these three artists.")
 
-        if st.button('Show Top 10 Songs of above three artists'):
-            with st.expander("Top 10 Songs"):
-#Get top 10 songs of (Ariana Grande, Post Malone, Daddy Yankee) from api_scraper 
-#code is the same with api_scraper.py
-                
+        
+        if st.button('Show Sales Amounts and Compare'):
+            with st.expander("Sales Amount of Ariana Grande"):
+                script_path = os.path.dirname(__file__)
+                filename_ag = 'amazon_ag'
+                file_path_ag = os.path.join(script_path, f'{filename_ag}.csv')
+                df_ag = pd.read_csv(file_path_ag)
+                keys = df_ag.keys()
+                col1_name = keys[0]
+                col2_name = keys[1]
+                df_ag = df_ag.rename(columns={col1_name: 'sales amount', col2_name: 'price'})
+                df_ag['sales amount'] = df_ag['sales amount'].str.replace(r'1K+', '1000+')
+                df_ag['sales amount'] = df_ag['sales amount'].str.replace(r'\D+', '', regex=True)
+                df_ag['sales amount'] = df_ag['sales amount'].astype(int)
+                st.write("Ariana Grande's sales amount:")
+                st.write(df_ag)
+                sales_ag = df_ag['sales amount'].sum()
+                st.write("Ariana Grande's total sales amount:", sales_ag)
 
-                #get token header
-                
+            with st.expander("Sales Amount of Post Malone"):
+                filename_pm = 'amazon_pm'
+                file_path_pm = os.path.join(script_path, f'{filename_pm}.csv')
+                df_pm = pd.read_csv(file_path_pm)
+                keys = df_pm.keys()
+                col1_name = keys[0]
+                col2_name = keys[1]
+                df_pm = df_pm.rename(columns={col1_name: 'sales amount', col2_name: 'price'})
+                df_pm['sales amount'] = df_pm['sales amount'].str.replace(r'\D+', '', regex=True)
+                df_pm['sales amount'] = df_pm['sales amount'].astype(int)
+                st.write("Post Malone's sales amount:")
+                st.write(df_pm)
+                sales_pm = df_pm['sales amount'].sum()
+                st.write("Post Malone's total sales amount:", sales_pm)
+
+            # Comparison and Display
+            df_compare = pd.DataFrame({
+                'Artist': ['Ariana Grande', 'Post Malone'],
+                'Total Sales': [sales_ag, sales_pm]
+            })
+            st.write("Comparison of Total Sales:")
+            st.write(df_compare)
+
+            explanation = """
+            This comparison shows the sales amount of Ariana Grande and Post Malone.
+            Note: Daddy Yankee's monthly sales data below 50 are not displayed on Amazon.
+            """
+            st.write(explanation)
+
+
+        def generate_and_display_wordcloud(file_path, artist_name):
+            try:
+                df = pd.read_csv(file_path)
+                df['text'] = df['text'].str.replace('Evan Peter', '') 
+                comments = df['text'].astype(str).tolist()
+                comments_text = ' '.join(comments)
+                wordcloud = WordCloud(width=800, height=400, background_color='white').generate(comments_text)
+
+                fig, ax = plt.subplots(figsize=(10, 8))
+                ax.imshow(wordcloud, interpolation='bilinear')
+                ax.axis('off')
+                st.pyplot(fig)
+            except Exception as e:
+                st.error(f"Failed to load or generate the wordcloud for {artist_name}: {e}")
+
+        if st.button('Show Wordclouds'):
+            artists = {
+                'Ariana Grande': 'youtube_ag.csv',
+                'Post Malone': 'youtube_pm.csv',
+                'Daddy Yankee': 'youtube_dy.csv'
+            }
+            script_path = os.path.dirname(__file__)
+
+            for artist_name, filename in artists.items():
+                with st.expander(f"Wordcloud of {artist_name}"):
+                    file_path = os.path.join(script_path, filename)
+                    generate_and_display_wordcloud(file_path, artist_name)
+
+        def plot_average_popularity_by_genre(data):
+            # Grouping data by genre and calculating mean popularity
+            gen = (data.groupby('genre')['popularity']
+                .mean()
+                .sort_values(ascending=False)
+                .reset_index()
+                .rename(columns={'popularity': 'Average popularity'}))
             
-                
+            # Plotting
+            plt.figure(figsize=(10, 6))
+            plt.bar(gen['genre'], gen['Average popularity'], color='lightblue')
+            plt.title('Average Popularity by Genres')
+            plt.ylabel('Average Popularity')
+            plt.xlabel('Genre')
+            plt.xticks(rotation=45)  # Rotate genre labels for better readability
+            plt.tight_layout()  # Adjust layout to not cut off labels
+
+            # Using Streamlit to display the plot
+            st.pyplot(plt)  # Make sure to use plt after generating the plot
+
+        # Example usage in Streamlit
+        if st.button('Show Average Popularity by Genre'):
+            # Assuming df_spo is already loaded and available in the Streamlit script
+            # df_spo = pd.read_csv('your_dataset.csv')  # You can load your data similarly
+            plot_average_popularity_by_genre(df_spo) 
+
+
+
+
+        # def calculate_MSE(models, data):
+        #     results = {}
+        #     X = data.select_dtypes(include=[np.number]).drop('popularity', axis=1)
+        #     y = data['popularity']
+        #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
+
+        #     for name, model in models.items():
+        #         try:
+        #             with st.spinner(f'Training {name} model...'):
+        #                 model.fit(X_train, y_train)
+        #                 y_pred = model.predict(X_test)
+        #                 mse = mean_squared_error(y_test, y_pred)
+        #                 results[name] = mse
+        #             st.success(f'{name} model trained successfully!')
+        #         except Exception as e:
+        #             st.error(f"Failed to calculate MSE for {name}: {e}")
+
+        #     return results
+
+        # # Set up models
+        # models = {
+        #     'Lasso Regression': Pipeline([
+        #         ('scaler', StandardScaler()),
+        #         ('lasso', Lasso(alpha=0.01, random_state=42))
+        #     ]),
+        #     'Ridge Regression': make_pipeline(StandardScaler(), Ridge(alpha=2)),
+        #     'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42)
+        # }
+
+        # # Example usage in Streamlit
+        # if st.button('Calculate MSE for All Models'):
+        #     # df_spo = pd.read_csv('your_dataset.csv')  # You can load your data similarly
+        #     results = calculate_MSE(models, df_spo)
+        #     if results:
+        #         for model_name, mse in results.items():
+        #             st.write(f"Mean squared error of {model_name} is {mse}")
+
+        #     explanation = """
+        #     We can see MSE is too high for Ridge and Lasso, so I use another ML method: random forest.
+        #     """
+        #     st.write(explanation)
+
+        
+
+        def genre_classification(data):
+            try:
+                # Drop non-relevant columns and prepare features and labels
+                X = data.drop(['genre', 'artist_name', 'track_name', 'track_id', 'key', 'mode', 'time_signature'], axis=1)
+                y = data['genre']
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
+
+                # Inform the user that the model is training
+                with st.spinner('Training genre classification model... This may take a few minutes.'):
+                    pipeline = Pipeline([
+                        ('scaler', StandardScaler()),  
+                        ('classifier', RandomForestClassifier(n_estimators=100, random_state=42))  
+                    ])
+
+                    pipeline.fit(X_train, y_train)
+                    y_pred = pipeline.predict(X_test)
+                    accuracy = accuracy_score(y_test, y_pred)
+                    result_form = classification_report(y_test, y_pred)
+
+                st.success('Model trained successfully!')
+                st.write("Accuracy:", accuracy)
+                st.text(result_form)
+
+            except Exception as e:
+                st.error(f"Failed to classify genres: {e}")
+
+        # Example usage in Streamlit
+        if st.button('Classify Genres'):
+            # Assuming df_spo is already loaded and available in the Streamlit script
+            # df_spo = pd.read_csv('your_dataset.csv')  # You can load your data similarly
+            genre_classification(df_spo) 
+
+
+
+
+        manual_stopwords = set([
+    "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours",
+    "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers",
+    "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves",
+    "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are",
+    "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does",
+    "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as",
+    "until", "while", "of", "at", "by", "for", "with", "about", "against", "between",
+    "into", "through", "during", "before", "after", "above", "below", "to", "from",
+    "up", "down", "in", "out", "on", "off", "over", "under", "again", "further",
+    "then", "once", "here", "there", "when", "where", "why", "how", "all", "any",
+    "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not",
+    "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just",
+    "don", "should", "now", ":"
+])
+
+    def most_common_words(data):
+        def remove_stopwords(text, stopwords_set):
+            words = text.lower().split()
+            filtered_words = [word for word in words if word not in stopwords_set]
+            return " ".join(filtered_words)
+
+        # 过滤和清理数据
+        data = data.dropna(subset=['track_name'])
+        track_names = data['track_name']
+        data['track_name_cleaned'] = track_names.apply(remove_stopwords, args=(manual_stopwords,))
+        
+        # 计算词频
+        word_freq = Counter(" ".join(data['track_name_cleaned']).split())
+        most_common_words = word_freq.most_common(20)
+        
+        return most_common_words
+
+
+    if st.button('Show Most Common Words in Track Names'):
+        # 假设 df_spo 已经加载并可用
+        # df_spo = pd.read_csv('your_dataset.csv')
+        common_words = most_common_words(df_spo)
+        st.write("The most common words in track names:")
+        for word, freq in common_words:
+            st.write(f"{word}: {freq}")
+
+
+    def artist_analysis(data, artists):
+        try:
+            artist_counts = data['artist_name'].value_counts()
+            st.write("Most Featured Artists:")
+            st.write(artist_counts.head(10))
+            
+            features = data.groupby('artist_name')[['danceability', 'energy', 'tempo']].mean()
+            sorted_danceability = features.sort_values(by='danceability', ascending=False)
+            sorted_energy = features.sort_values(by='energy', ascending=False)
+            sorted_tempo = features.sort_values(by='tempo', ascending=False)
+            
+            st.write("Artists with highest average danceability:")
+            st.dataframe(sorted_danceability.head(10))
+            st.write("Artists with highest average energy:")
+            st.dataframe(sorted_energy.head(10))
+            st.write("Artists with highest average tempo:")
+            st.dataframe(sorted_tempo.head(10))
+            
+            for artist in artists:
+                specific_artist = data[data['artist_name'] == artist]
+                st.write(f"Pairplot for {artist}")
+                pairplot_fig = sns.pairplot(specific_artist[['danceability', 'energy', 'tempo']])
+                st.pyplot(pairplot_fig)
+        
+        except Exception as e:
+            st.error(f"Error in artist analysis: {e}")
+
+    # Assuming df_spo is already loaded
+    if st.button('Analyze Artists'):
+        artist_analysis(df_spo, ['Ariana Grande', 'Post Malone', 'Daddy Yankee'])
+
+
+
+
+    def plot_duration_by_genre(data):
+        try:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.set_title("Duration of songs in different genres")
+            sns.barplot(x='duration_ms', y='genre', color='lightblue', data=data, ax=ax)
+            
+            # 使用ax.bar_label来标注条形图
+            for bars in ax.containers:
+                ax.bar_label(bars)
+
+            ax.set_xlabel('Duration (ms)')
+            ax.set_ylabel('Genre')
+            
+            # 使用传递给st.pyplot的fig对象
+            st.pyplot(fig)
+        except Exception as e:
+            st.error(f"Error plotting duration by genre: {e}")
+
+    if st.button('Show Duration by Genre'):
+        # 假设df_spo是已经加载的数据集
+        plot_duration_by_genre(df_spo)
+        
+
 
 
         
@@ -209,36 +442,13 @@ def page_answer_questions():
            To expand the project...
     """)
 
+# Main App
+def main():
+    page = st.sidebar.selectbox("Choose a page", ["Music Analysis", "Answer the Questions"])
+    if page == "Music Analysis":
+        page_music_analysis()
+    elif page == "Answer the Questions":
+        page_answer_questions()
 
-def page_top_songs():
-    st.title("Top 10 Songs of Artists")
-
-    client_id = st.secrets["SPOTIFY_CLIENT_ID"]
-    client_secret = st.secrets["SPOTIFY_CLIENT_SECRET"]
-    token = get_token(client_id, client_secret)
-
-    artist_names = ["Ariana Grande", "Post Malone", "Daddy Yankee"]
-    top_songs = {}
-
-    for artist_name in artist_names:
-        artist = search_for_artist(token, artist_name)
-        if artist:
-            artist_id = artist["id"]
-            songs = get_songs_by_artist(token, artist_id)
-            top_songs[artist_name] = songs[:10]  # Get the top 10 songs
-
-    # Display the top songs for each artist
-    for artist_name, songs in top_songs.items():
-        st.subheader(f"Top songs by {artist_name}:")
-        for idx, song in enumerate(songs):
-            st.write(f"{idx+1}. {song['name']} - Popularity: {song['popularity']}")
-
-# Streamlit app logic
-page = st.sidebar.selectbox("Choose a page", ["Music Analysis", "Answer the Questions", "Top Songs"])
-
-if page == "Music Analysis":
-    page_music_analysis()
-elif page == "Answer the Questions":
-    page_answer_questions()
-elif page == "Top Songs":
-    page_top_songs()
+if __name__ == "__main__":
+    main()
