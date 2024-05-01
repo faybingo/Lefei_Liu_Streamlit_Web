@@ -55,15 +55,15 @@ def page_music_analysis():
     if df_spo is not None:
         st.title("Music Data Analysis")
         st.markdown("""
-            **Developed by: Lefei Liu
+            Name : Lefei Liu
 
             ### How to Use This Web
-            - **Interactivity:** You can interact with the app by clicking on buttons like 'Show Data Cleaning Information', 'Show Correlation of Each Variable', etc. Each button will provide detailed insights or visualizations based on the underlying music data.
-            - **Charts and Plots:** The charts represent various analytical insights such as the correlation between musical features, popularity distributions, and more.
+            - **Interactivity:** You can interact with the app by clicking on buttons like 'Show Data Cleaning Information', 'Show Correlation of Each Variable', etc. Each button will provide detailed insights or visualizations based on the music data.
+            - **Charts and Plots:** You can click on each plot button to view its corresponding explanation of the meaning.
             - **Conclusions:** After exploring the data, the app provides conclusions based on the analysis such as the most popular artists, the characteristics of popular music, etc.
 
             ### Major Gotchas
-            - **Performance:** Random Forest may cost 5 minutes to run.
+            - **Performance:** "Calculating MSE for Three Models" is expected to take 4-5 minutes to complete. "Classifying Genres" may take 3-4 minutes to cimpplete. If you encounter an error while running "Classifying Genres", simply refresh the URL and it should resolve the issue.
             - **Improvements:** The application can be further improved by integrating real-time data and using more advanced machine learning models for predictions.
         """)
 
@@ -74,6 +74,7 @@ def page_music_analysis():
                 st.write(df_spo.isnull().sum())
                 duplicate_count = df_spo.duplicated().sum()
                 st.write(f"Number of duplicate rows: {duplicate_count}")
+                st.write("From the chart above, there is only one missing value in the 'track_name' column, which seems inconsequential.")
 
         # Button to show data description
         if st.button('Show Data Description'):
@@ -86,6 +87,7 @@ def page_music_analysis():
                 st.write(df_spo.describe())
                 st.write("Count of songs per artist:")
                 st.write(df_spo['artist_name'].value_counts())
+                st.write("Here's a basic overview of the DataFrame 'df_spo'. The second form presents a statistical summary of the entire dataset.")
 
         # Correlation heatmap
         if st.button('Show Correlation of Each Variable'):
@@ -98,6 +100,8 @@ def page_music_analysis():
                     ax.set_title('Correlation between each variable')
                     st.pyplot(fig)
                 plot_correlation(df_spo)
+                st.write("We can see the correlation heatmap provides a fundamental understanding of the relationships between each variable.")
+
 
         if st.button('Show Histgram of Popularity'):
             with st.expander("Histgram of Popularity"):
@@ -109,6 +113,8 @@ def page_music_analysis():
                     ax.set_title('Distribution of popularity')
                     st.pyplot(fig)
                 plot_popularity_distribution(df_spo)
+                st.write("We can observe the distribution of one column 'popularity' in the df_spo total dataset, which is a right-skewed histogram.")
+                
 
         if st.button('Show Most Popular Songs'):
             with st.expander("Most Popular Songs"):
@@ -125,7 +131,9 @@ def page_music_analysis():
                         ax.bar_label(bar)
                     ax.set_xlabel('Popularity')
                     ax.set_ylabel('Number of songs')
-                    st.pyplot(fig)  # Display the figure with Streamlit
+                    st.pyplot(fig)  
+                    st.write("The initial plot displays the top 10 most popular songs. It's worth mentioning that two of these songs have a popularity score of 100. Additionally, the subsequent form reveals the names of these 10 songs and their respective artists. Notably, the artists behind the top 10 songs include Ariana Grande, Post Malone, and Daddy Yankee.")
+                    st.write("Therefore, I will extract their top 10 songs from the Spotify API (under the 'Top Songs' page) and conduct further analysis based on these three artists.")
 
                 popular_songs_df = most_popular_songs(df_spo)
                 plot_most_popular_songs(popular_songs_df)
@@ -175,10 +183,11 @@ def page_music_analysis():
             st.write(df_compare)
 
             explanation = """
-            This comparison shows the sales amount of Ariana Grande and Post Malone.
-            Note: Daddy Yankee's monthly sales data below 50 are not displayed on Amazon.
+          We gathered sales data from Amazon, comparing the sales amounts of Ariana Grande and Post Malone. It's evident that Ariana Grande's sales exceed those of Post Malone. It's noteworthy that sales data for Daddy Yankee with monthly sales below 50 were omitted from Amazon. This observation suggests that Daddy Yankee might not currently enjoy the same level of popularity. However, it's important to acknowledge that our dataset may be slightly outdated.
             """
             st.write(explanation)
+
+
 
 
         def generate_and_display_wordcloud(file_path, artist_name):
@@ -208,6 +217,10 @@ def page_music_analysis():
                 with st.expander(f"Wordcloud of {artist_name}"):
                     file_path = os.path.join(script_path, filename)
                     generate_and_display_wordcloud(file_path, artist_name)
+                
+            st.write("By scraping review data from YouTube for each artist and visualizing their wordclouds, we gain insights into audience feedback and interests. Analyzing the keywords in the word clouds helps us better understand what resonates with the audience, enabling us to optimize video content, enhance user experience, and devise more effective marketing strategies.")
+
+            
 
         def plot_average_popularity_by_genre(data):
             # Grouping data by genre and calculating mean popularity
@@ -223,62 +236,58 @@ def page_music_analysis():
             plt.title('Average Popularity by Genres')
             plt.ylabel('Average Popularity')
             plt.xlabel('Genre')
-            plt.xticks(rotation=45)  # Rotate genre labels for better readability
+            # plt.xticks(rotation=45)  # Rotate genre labels for better readability
             plt.tight_layout()  # Adjust layout to not cut off labels
+            st.pyplot(plt)  # 
 
-            # Using Streamlit to display the plot
-            st.pyplot(plt)  # Make sure to use plt after generating the plot
+        if st.button('Show Average Popularity by Genre'):
+            # df_spo = pd.read_csv('your_dataset.csv')  
+            plot_average_popularity_by_genre(df_spo) 
+            st.write("Based on different genres, we can obtain the popularity values for each genre.")
+
+
+
+
+
+        def calculate_MSE(models, data):
+            results = {}
+            X = data.select_dtypes(include=[np.number]).drop('popularity', axis=1)
+            y = data['popularity']
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
+
+            for name, model in models.items():
+                try:
+                    with st.spinner(f'Training {name} model...'):
+                        model.fit(X_train, y_train)
+                        y_pred = model.predict(X_test)
+                        mse = mean_squared_error(y_test, y_pred)
+                        results[name] = mse
+                    st.success(f'{name} model trained successfully!')
+                except Exception as e:
+                    st.error(f"Failed to calculate MSE for {name}: {e}")
+
+            return results
+
+        # Set up models
+        models = {
+            'Lasso Regression': Pipeline([
+                ('scaler', StandardScaler()),
+                ('lasso', Lasso(alpha=0.01, random_state=42))
+            ]),
+            'Ridge Regression': make_pipeline(StandardScaler(), Ridge(alpha=2)),
+            'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42)
+        }
 
         # Example usage in Streamlit
-        if st.button('Show Average Popularity by Genre'):
-            # Assuming df_spo is already loaded and available in the Streamlit script
+        if st.button('Calculate MSE for All Models'):
             # df_spo = pd.read_csv('your_dataset.csv')  # You can load your data similarly
-            plot_average_popularity_by_genre(df_spo) 
+            results = calculate_MSE(models, df_spo)
+            if results:
+                for model_name, mse in results.items():
+                    st.write(f"Mean squared error of {model_name} is {mse}")
 
+            st.write("Upon observing excessively high MSE values for Ridge and Lasso regression, I chose for an alternative ML method: random forest. We can see the MSE value significantly decreased.")
 
-
-
-        # def calculate_MSE(models, data):
-        #     results = {}
-        #     X = data.select_dtypes(include=[np.number]).drop('popularity', axis=1)
-        #     y = data['popularity']
-        #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
-
-        #     for name, model in models.items():
-        #         try:
-        #             with st.spinner(f'Training {name} model...'):
-        #                 model.fit(X_train, y_train)
-        #                 y_pred = model.predict(X_test)
-        #                 mse = mean_squared_error(y_test, y_pred)
-        #                 results[name] = mse
-        #             st.success(f'{name} model trained successfully!')
-        #         except Exception as e:
-        #             st.error(f"Failed to calculate MSE for {name}: {e}")
-
-        #     return results
-
-        # # Set up models
-        # models = {
-        #     'Lasso Regression': Pipeline([
-        #         ('scaler', StandardScaler()),
-        #         ('lasso', Lasso(alpha=0.01, random_state=42))
-        #     ]),
-        #     'Ridge Regression': make_pipeline(StandardScaler(), Ridge(alpha=2)),
-        #     'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42)
-        # }
-
-        # # Example usage in Streamlit
-        # if st.button('Calculate MSE for All Models'):
-        #     # df_spo = pd.read_csv('your_dataset.csv')  # You can load your data similarly
-        #     results = calculate_MSE(models, df_spo)
-        #     if results:
-        #         for model_name, mse in results.items():
-        #             st.write(f"Mean squared error of {model_name} is {mse}")
-
-        #     explanation = """
-        #     We can see MSE is too high for Ridge and Lasso, so I use another ML method: random forest.
-        #     """
-        #     st.write(explanation)
 
         
 
@@ -313,6 +322,7 @@ def page_music_analysis():
             # Assuming df_spo is already loaded and available in the Streamlit script
             # df_spo = pd.read_csv('your_dataset.csv')  # You can load your data similarly
             genre_classification(df_spo) 
+            st.write("This model uses the random forest algorithm to train a music type classification model, and can ultimately display the model's accuracy and classification report. 0.38 means that the model correctly predicted about 38% of the samples. It can be seen from the classification report that the prediction performance of most music types is low, and the precision, recall, and f1-score of many types are low, indicating that the model has large errors. Further optimization of the model may be required to improve classification accuracy.")
 
 
 
@@ -330,7 +340,7 @@ def page_music_analysis():
     "then", "once", "here", "there", "when", "where", "why", "how", "all", "any",
     "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not",
     "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just",
-    "don", "should", "now", ":"
+    "don", "should", "now", ":","/"
 ])
 
     def most_common_words(data):
@@ -339,25 +349,28 @@ def page_music_analysis():
             filtered_words = [word for word in words if word not in stopwords_set]
             return " ".join(filtered_words)
 
-        # 过滤和清理数据
+        #clean the data
         data = data.dropna(subset=['track_name'])
         track_names = data['track_name']
         data['track_name_cleaned'] = track_names.apply(remove_stopwords, args=(manual_stopwords,))
-        
-        # 计算词频
+
         word_freq = Counter(" ".join(data['track_name_cleaned']).split())
         most_common_words = word_freq.most_common(20)
         
         return most_common_words
 
-
     if st.button('Show Most Common Words in Track Names'):
-        # 假设 df_spo 已经加载并可用
         # df_spo = pd.read_csv('your_dataset.csv')
         common_words = most_common_words(df_spo)
         st.write("The most common words in track names:")
         for word, freq in common_words:
             st.write(f"{word}: {freq}")
+            st.write("We want to count the most common words in music track names. First, chatgpt was used to generate some common stop words. Then, the frequency of words after removing stop words was counted. Finally, it returns the top 20 most frequent words in the track names and their frequencies.")
+
+
+
+
+
 
 
     def artist_analysis(data, artists):
@@ -394,37 +407,73 @@ def page_music_analysis():
 
 
 
+
+
     def plot_duration_by_genre(data):
         try:
             fig, ax = plt.subplots(figsize=(8, 6))
             ax.set_title("Duration of songs in different genres")
             sns.barplot(x='duration_ms', y='genre', color='lightblue', data=data, ax=ax)
             
-            # 使用ax.bar_label来标注条形图
             for bars in ax.containers:
                 ax.bar_label(bars)
-
             ax.set_xlabel('Duration (ms)')
             ax.set_ylabel('Genre')
             
-            # 使用传递给st.pyplot的fig对象
             st.pyplot(fig)
         except Exception as e:
             st.error(f"Error plotting duration by genre: {e}")
 
     if st.button('Show Duration by Genre'):
-        # 假设df_spo是已经加载的数据集
         plot_duration_by_genre(df_spo)
+
+
+
+
+def page_filter_data():
+    st.title("Filtered Data")
+    df_spo = load_data()
+
+    st.sidebar.header("Filter Options")
+    artist_name = st.sidebar.text_input("Artist Name")
+    genre = st.sidebar.multiselect("Genre", options=df_spo['genre'].unique(), default=df_spo['genre'].unique())
+    tempo_range = st.sidebar.slider("Tempo", int(df_spo['tempo'].min()), int(df_spo['tempo'].max()), (int(df_spo['tempo'].min()), int(df_spo['tempo'].max())))
+    valence_range = st.sidebar.slider("Valence", float(df_spo['valence'].min()), float(df_spo['valence'].max()), (float(df_spo['valence'].min()), float(df_spo['valence'].max())))
+    acousticness_range = st.sidebar.slider("Acousticness", float(df_spo['acousticness'].min()), float(df_spo['acousticness'].max()), (float(df_spo['acousticness'].min()), float(df_spo['acousticness'].max())))
+    danceability_range = st.sidebar.slider("Danceability", float(df_spo['danceability'].min()), float(df_spo['danceability'].max()), (float(df_spo['danceability'].min()), float(df_spo['danceability'].max())))
+    energy_range = st.sidebar.slider("Energy", float(df_spo['energy'].min()), float(df_spo['energy'].max()), (float(df_spo['energy'].min()), float(df_spo['energy'].max())))
+    liveness_range = st.sidebar.slider("Liveness", float(df_spo['liveness'].min()), float(df_spo['liveness'].max()), (float(df_spo['liveness'].min()), float(df_spo['liveness'].max())))
+    loudness_range = st.sidebar.slider("Loudness", float(df_spo['loudness'].min()), float(df_spo['loudness'].max()), (float(df_spo['loudness'].min()), float(df_spo['loudness'].max())))
+    speechiness_range = st.sidebar.slider("Speechiness", float(df_spo['speechiness'].min()), float(df_spo['speechiness'].max()), (float(df_spo['speechiness'].min()), float(df_spo['speechiness'].max())))
+
+
+    if st.sidebar.button("Apply Filters"):
+        filtered_df = df_spo
+        if artist_name:
+            filtered_df = filtered_df[filtered_df['artist_name'].str.contains(artist_name, case=False, na=False)]
+        if genre:
+            filtered_df = filtered_df[filtered_df['genre'].isin(genre)]
+        filtered_df = filtered_df[(filtered_df['tempo'] >= tempo_range[0]) & (filtered_df['tempo'] <= tempo_range[1])]
+        filtered_df = filtered_df[(filtered_df['valence'] >= valence_range[0]) & (filtered_df['valence'] <= valence_range[1])]
+        filtered_df = filtered_df[(filtered_df['acousticness'] >= acousticness_range[0]) & (filtered_df['acousticness'] <= acousticness_range[1])]
+        filtered_df = filtered_df[(filtered_df['danceability'] >= danceability_range[0]) & (filtered_df['danceability'] <= danceability_range[1])]
+        filtered_df = filtered_df[(filtered_df['energy'] >= energy_range[0]) & (filtered_df['energy'] <= energy_range[1])]
+        filtered_df = filtered_df[(filtered_df['liveness'] >= liveness_range[0]) & (filtered_df['liveness'] <= liveness_range[1])]
+        filtered_df = filtered_df[(filtered_df['loudness'] >= loudness_range[0]) & (filtered_df['loudness'] <= loudness_range[1])]
+        filtered_df = filtered_df[(filtered_df['speechiness'] >= speechiness_range[0]) & (filtered_df['speechiness'] <= speechiness_range[1])]
+
+        st.dataframe(filtered_df)
+    else:
+        # Display the full dataframe by default
+        st.dataframe(df_spo)
         
 
 
 
         
 
-# Define a function for the Q&A page
 def page_answer_questions():
-    st.title("Answer the Questions")
-    # You can use st.write or st.markdown to format your text
+    st.title("Answer the Last 4 Questions")
     st.markdown("""
         4. **What did you set out to study?**  
            I set out to study...
@@ -444,10 +493,13 @@ def page_answer_questions():
 
 # Main App
 def main():
-    page = st.sidebar.selectbox("Choose a page", ["Music Analysis", "Answer the Questions"])
-    if page == "Music Analysis":
+    page = st.sidebar.selectbox("Choose a page", ["Filter Data", "Music Analysis", "Answer the Questions"])
+    
+    if page == "Filter Data":
+        page_filter_data()
+    elif page == "Music Analysis":
         page_music_analysis()
-    elif page == "Answer the Questions":
+    elif page == "Answer the Last 4 Questions":
         page_answer_questions()
 
 if __name__ == "__main__":

@@ -95,7 +95,7 @@ def page_music_analysis():
     if df_spo is not None:
         st.title("Music Data Analysis")
         st.markdown("""
-            **Developed by: Lefei Liu
+            Lefei Liu
 
             ### How to Use This Web
             - **Interactivity:** You can interact with the app by clicking on buttons like 'Show Data Cleaning Information', 'Show Correlation of Each Variable', etc. Each button will provide detailed insights or visualizations based on the underlying music data.
@@ -103,7 +103,7 @@ def page_music_analysis():
             - **Conclusions:** After exploring the data, the app provides conclusions based on the analysis such as the most popular artists, the characteristics of popular music, etc.
 
             ### Major Gotchas
-            - **Performance:** Random Forest may cost 5 minutes to run.
+            - **Performance:** "Calculating MSE for Three Models" is expected to take 4-5 minutes to complete. "Classifying Genres" may take 3-4 minutes to cimpplete. If you encounter an error while running "Classifying Genres", simply refresh the URL and it should resolve the issue.
             - **Improvements:** The application can be further improved by integrating real-time data and using more advanced machine learning models for predictions.
         """)
 
@@ -308,7 +308,7 @@ def page_music_analysis():
         }
 
         # Example usage in Streamlit
-        if st.button('Calculate MSE for All Models'):
+        if st.button('Calculate MSE for Three Models'):
             # df_spo = pd.read_csv('your_dataset.csv')  # You can load your data similarly
             results = calculate_MSE(models, df_spo)
             if results:
