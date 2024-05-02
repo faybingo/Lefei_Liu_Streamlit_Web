@@ -49,6 +49,13 @@ def load_data():
         st.error(f"Failed to load data: {e}")
         return None
 
+def load_artist_data():
+    script_path = os.path.dirname(__file__)
+    filename = 'artists_top10_data'
+    file_path = os.path.join(script_path, f'{filename}.csv')
+    df_top10 = pd.read_csv(file_path)
+    return df_top10
+
 # Music Analysis Page
 def page_music_analysis():
     df_spo = load_data()
@@ -58,10 +65,8 @@ def page_music_analysis():
             Name : Lefei Liu
 
             ### How to Use This Web
-            - **Interactivity:** You can interact with the app by clicking on buttons like 'Show Data Cleaning Information', 'Show Correlation of Each Variable', etc. Each button will provide detailed insights or visualizations based on the music data.
-            - **Charts and Plots:** You can click on each plot button to view its corresponding explanation of the meaning.
-            - **Conclusions:** After exploring the data, the app provides conclusions based on the analysis such as the most popular artists, the characteristics of popular music, etc.
-
+            My web application consists of 3 pages. The first page is 'Filter Data'.You can enter the name of an artist (for example, Ariana Grande), select your desired genres, and then adjust the sliders of other variables on the bottom left to obtain the data you want. The second page is 'Music Analysis', where interaction with the application is done by clicking buttons like "Show Data Cleaning Information" or "Show Correlation of Each Variable". Each button provides detailed insights or visualizations based on total data. You can click on each plot button to view its corresponding explanation of the meaning. The third page is for answering the 5 questions.
+            
             ### Major Gotchas
             - **Performance:** "Calculating MSE for Three Models" is expected to take 4-5 minutes to complete. "Classifying Genres" may take 3-4 minutes to cimpplete. If you encounter an error while running "Classifying Genres", simply refresh the URL and it should resolve the issue.
             - **Improvements:** The application can be further improved by integrating real-time data and using more advanced machine learning models for predictions.
@@ -132,15 +137,30 @@ def page_music_analysis():
                     ax.set_xlabel('Popularity')
                     ax.set_ylabel('Number of songs')
                     st.pyplot(fig)  
-                    st.write("The initial plot displays the top 10 most popular songs. It's worth mentioning that two of these songs have a popularity score of 100. Additionally, the subsequent form reveals the names of these 10 songs and their respective artists. Notably, the artists behind the top 10 songs include Ariana Grande, Post Malone, and Daddy Yankee.")
-                    st.write("Therefore, I will extract their top 10 songs from the Spotify API (under the 'Top Songs' page) and conduct further analysis based on these three artists.")
-
+                    st.write("The initial plot displays the top 10 most popular songs. It's worth mentioning that two of these songs have a popularity score of 100. ")
                 popular_songs_df = most_popular_songs(df_spo)
                 plot_most_popular_songs(popular_songs_df)
                 st.write(popular_songs_df)
-                st.write("We can see that the top 10 songs' artists are Ariana Grande, Post Malone, and Daddy Yankee. Therefore, I will extract their top 10 songs from the Spotify API (under the 'Top Songs' page) and conduct further analysis based on these three artists.")
-
+                st.write("In the second form, we can see that the names of these 10 songs and their respective artists. Obviously, the artists behind the top 10 songs include Ariana Grande, Post Malone, and Daddy Yankee.")
+                st.write("I will extract their top 10 songs from the Spotify API (under the 'Top Songs' page) and conduct further analysis based on these three artists.")
         
+        
+
+            
+        if st.button('Show Top 10 Songs'):
+            with st.expander("Top 10 Songs Data"):
+                try:
+                    script_path = os.path.dirname(__file__)  
+                    filename = 'artists_top10_data.csv'    
+                    file_path = os.path.join(script_path, filename)
+                    df_top10 = pd.read_csv(file_path, encoding='ISO-8859-1')     
+                    st.dataframe(df_top10)                
+                except Exception as e:
+                    st.error(f"Failed to load data: {e}")  
+                    st.write("This is the data that I screped from Spofity API")
+
+
+
         if st.button('Show Sales Amounts and Compare'):
             with st.expander("Sales Amount of Ariana Grande"):
                 script_path = os.path.dirname(__file__)
@@ -183,7 +203,7 @@ def page_music_analysis():
             st.write(df_compare)
 
             explanation = """
-          We gathered sales data from Amazon, comparing the sales amounts of Ariana Grande and Post Malone. It's evident that Ariana Grande's sales exceed those of Post Malone. It's noteworthy that sales data for Daddy Yankee with monthly sales below 50 were omitted from Amazon. This observation suggests that Daddy Yankee might not currently enjoy the same level of popularity. However, it's important to acknowledge that our dataset may be slightly outdated.
+          We scraped sales data from Amazon（The API code is called 'amazon_scraper', and the corresponding datasets are named 'amazon_ag' and 'amazon_pm'.）, comparing the sales amounts of Ariana Grande and Post Malone. It's evident that Ariana Grande's sales exceed those of Post Malone. It's noteworthy that sales data for Daddy Yankee with monthly sales below 50 were omitted from Amazon. This observation suggests that Daddy Yankee might not currently enjoy the same level of popularity. However, it's important to acknowledge that our dataset may be slightly outdated.
             """
             st.write(explanation)
 
@@ -243,7 +263,7 @@ def page_music_analysis():
         if st.button('Show Average Popularity by Genre'):
             # df_spo = pd.read_csv('your_dataset.csv')  
             plot_average_popularity_by_genre(df_spo) 
-            st.write("Based on different genres, we can obtain the popularity values for each genre.")
+            st.write("Based on different genres, we can obtain the popularity values for each genre. The most polular genre is 'Pop'")
 
 
 
@@ -365,7 +385,7 @@ def page_music_analysis():
         st.write("The most common words in track names:")
         for word, freq in common_words:
             st.write(f"{word}: {freq}")
-            st.write("We want to count the most common words in music track names. First, chatgpt was used to generate some common stop words. Then, the frequency of words after removing stop words was counted. Finally, it returns the top 20 most frequent words in the track names and their frequencies.")
+        st.write("We want to count the most common words in music track names. First, chatgpt was used to generate some common stop words. Then, the frequency of words after removing stop words was counted. Finally, it returns the top 20 most frequent words in the track names and their frequencies.")
 
 
 
@@ -403,6 +423,7 @@ def page_music_analysis():
     # Assuming df_spo is already loaded
     if st.button('Analyze Artists'):
         artist_analysis(df_spo, ['Ariana Grande', 'Post Malone', 'Daddy Yankee'])
+        st.write("In this module, we analyze artists. The first table shows the ten most frequent artists in the data. Tables 2-4 show the average artist's danceability, energy, and tempo, and show the top ten artists with the highest rankings in these metrics. Take our previous visual analysis of three popular singers (Ariana Grande, Post Malone, and Daddy Yankee) to compare their differences by plotting pairplots between danceability, energy, and tempo.")
 
 
 
@@ -426,6 +447,8 @@ def page_music_analysis():
 
     if st.button('Show Duration by Genre'):
         plot_duration_by_genre(df_spo)
+        st.write("This is a graph plotting song duration for different genres of music, with the x-axis representing song duration in milliseconds and the y-axis representing genre.")
+
 
 
 
@@ -475,31 +498,37 @@ def page_filter_data():
 def page_answer_questions():
     st.title("Answer the Last 4 Questions")
     st.markdown("""
-        4. **What did you set out to study?**  
-           I set out to study...
+        **4. What did you set out to study?**  
+        - **Data visualization:** Explore correlations between variables of total music data by using a correlation heatmap; Draw distribution of popularity and analyze the skewness of histogram; Show the number of songs in different genres and their popularity distributions in a barchart; Displays a list of the most popular songs and further analyzes their popularity.
+        - **Regression analysis:** Use Lasso and Ridge regression models to evaluate the relationship between each variable and popularity; Use random forest to compare and to find a better model by using MSE.
+        - **Classification and prediction of music genres:** Use the random forest algorithm to train a music type classification model, and get model's accuracy and classification report.
+        - **Song characteristics Analysis:** Analyze the performance of songs by specific artists (such as Ariana Grande, Post Malone, Daddy Yankee) with respective to their danceability, energy, and tempo. Perform pairwise plot visualization on these artists' songs.
+        - **Business analysis:** Analyze and compare sales data of Ariana Grande and Post Malone on Amazon.
+        - **Text Analysis:** Conduct wordcloud analysis of YouTube music video comments to identify the most common words. It can help us to understand audience feedback and emotional tendencies.
 
-        5. **What did you discover/what were your conclusions?**  
-           The findings were...
+        **5. What did you discover/what were your conclusions?**  
+        For each analysis, I've provided the conclusions directly below the corresponding code results.
 
-        6. **What difficulties did you have in completing the project?**  
-           Some of the challenges...
+        **6. What difficulties did you have in completing the project?**  
+        After writing the Streamlit code, it could not be deployed successfully. I searched a long time, I found out that I need to add a requirement.txt.
 
-        7. **What skills did you wish you had while you were doing the project?**  
-           I wished to have skills like...
+        **7. What skills did you wish you had while you were doing the project?**  
+        I learned how to obtain an API, learned to scrape any web page, and finally made such a web app. This is something I've never done before. I am so excited and happy to learn that!
 
-        8. **What would you do "next" to expand or augment the project?**  
-           To expand the project...
+        **8. What would you do "next" to expand or augment the project?**  
+        I would use NLP techniques to analyze review text data, extracting valuable insights into user preferences. By investigating the data, I can explore more machine learning algorithms (such as support vector machine) to uncover hidden patterns and information. This comprehensive approach will enable me to gain a deeper understanding of user behavior and preferences, facilitating more effective decision-making.
     """)
+
 
 # Main App
 def main():
-    page = st.sidebar.selectbox("Choose a page", ["Filter Data", "Music Analysis", "Answer the Questions"])
+    page = st.sidebar.selectbox("Choose a page", ["Filter Data", "Music Analysis", "Answer the Last 5 Questions"])
     
     if page == "Filter Data":
         page_filter_data()
     elif page == "Music Analysis":
         page_music_analysis()
-    elif page == "Answer the Last 4 Questions":
+    elif page == "Answer the Last 5 Questions":
         page_answer_questions()
 
 if __name__ == "__main__":
