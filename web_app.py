@@ -75,7 +75,7 @@ def page_music_analysis():
                 st.write(df_spo.describe())
                 st.write("Count of songs per artist:")
                 st.write(df_spo['artist_name'].value_counts())
-                st.write("Here's a basic overview of the DataFrame 'df_spo'. The second form presents a statistical summary of the entire dataset. The third table show us the number of songs per artist with this dataset")
+                st.write("Here's a basic overview of the DataFrame 'df_spo'. The second form presents a statistical summary of the entire dataset. The third table show us the number of songs per artist with this dataset.")
 
         # correlation
         if st.button('Show Correlation of Each Variable'):
@@ -141,7 +141,7 @@ def page_music_analysis():
                     st.dataframe(df_top10)                
                 except Exception as e:
                     st.error(f"Failed to load data: {e}")  
-                    st.write("This is the top10 songs data that I scraped from Spofity API")
+                st.write("This is the top10 songs data that I scraped from Spofity API.")
 
 
         #compare sales amounts
@@ -186,7 +186,7 @@ def page_music_analysis():
             st.write("Comparison of Total Sales:")
             st.write(df_compare)
 
-            st.write("We scraped sales data from Amazon（API code is called 'amazon_scraper', and the corresponding datasets are named 'amazon_ag' and 'amazon_pm'.). The results clearly show that Ariana Grande's sales surpass those of Post Malone. Also, sales data for Daddy Yankee with monthly sales below 50 were omitted from Amazon. This observation suggests that Daddy Yankee might not currently enjoy the same level of popularity. Perhaps because our data is a bit outdated, the current sales amount do not match the previous music data. ")
+            st.write("We scraped sales data from Amazon(API code is called 'amazon_scraper', and the corresponding datasets are named 'amazon_ag' and 'amazon_pm'.). The results clearly show that Ariana Grande's sales surpass those of Post Malone. Also, sales data for Daddy Yankee with monthly sales below 50 were omitted from Amazon, so we can not obtain his sales amount data. This observation suggests that Daddy Yankee might not currently enjoy the same level of popularity. Perhaps because our data is a bit outdated, the current sales amount do not match the previous music data. ")
 
 
 
@@ -222,7 +222,7 @@ def page_music_analysis():
                     file_path = os.path.join(script_path, filename)
                     generate_and_display_wordcloud(file_path, artist_name)
                 
-            st.write("By scraping review data from YouTube for each artist and visualizing their wordclouds, we gain insights into audience feedback and interests. Analyzing the keywords in the word clouds helps us better understand what resonates with the audience, enabling us to optimize video content, enhance user experience, and devise more effective marketing strategies.")
+            st.write("We can see that the keywords from Ariana Grande's video comments include 'spotless', love', 'good', 'crying' and 'best'. For Post Malone, the keywords include 'love', 'amazing', 'life', 'cool', 'good,', 'heart', 'thank', 'live' and 'beautiful'. These keywords are positive, demonstrating both artists' ability to connect emotionally with their audience, particularly in expressing love, gratitude, and the beauty of life. Meanwhile, the keywords in Daddy Yankee's comments are mostly in Spanish, indicating that his primary market is likely in South America. By using word clouds for market positioning, we can create more appealing songs to attract new listeners. These infomation from YouTube comments show the emotional engagement of artists with their audience, and the geographical focus of Daddy Yankee's fans, providing valuable information for targeted marketing and music production. Analyzing the keywords in the word clouds helps us better understand what resonates with the audience, enabling us to optimize video content, enhance user experience, and devise more effective marketing strategies.")
 
             
         #avg pupularity for genre
@@ -285,7 +285,7 @@ def page_music_analysis():
                 for model_name, mse in results.items():
                     st.write(f"Mean squared error of {model_name} is {mse}")
 
-            st.write("Upon observing excessively high MSE values for Ridge and Lasso regression, I chose for an alternative ML method: random forest. We can see the MSE value significantly decreased.")
+            st.write("Upon observing high MSE values for Ridge and Lasso regression, I chose for an alternative ML method: random forest. We can see the MSE value significantly decreased.")
 
 
         
