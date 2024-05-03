@@ -222,7 +222,7 @@ def page_music_analysis():
                     file_path = os.path.join(script_path, filename)
                     generate_and_display_wordcloud(file_path, artist_name)
                 
-            st.write("We can see that the keywords from Ariana Grande's video comments include 'spotless', love', 'good', 'crying' and 'best'. For Post Malone, the keywords include 'love', 'amazing', 'life', 'cool', 'good,', 'heart', 'thank', 'live' and 'beautiful'. These keywords are positive, demonstrating both artists' ability to connect emotionally with their audience, particularly in expressing love, gratitude, and the beauty of life. Meanwhile, the keywords in Daddy Yankee's comments are mostly in Spanish, indicating that his primary market is likely in South America. By using word clouds for market positioning, we can create more appealing songs to attract new listeners. These infomation from YouTube comments show the emotional engagement of artists with their audience, and the geographical focus of Daddy Yankee's fans, providing valuable information for targeted marketing and music production. Analyzing the keywords in the word clouds helps us better understand what resonates with the audience, enabling us to optimize video content, enhance user experience, and devise more effective marketing strategies.")
+            st.write("We can see that the keywords from Ariana Grande's video comments include 'spotless', love', 'good', 'crying' and 'best'. For Post Malone, the keywords include 'love', 'amazing', 'life', 'cool', 'good,', 'heart', 'thank', 'live' and 'beautiful'. These keywords are positive. It shows the connection both artists made with their audience over love, gratitude and the beauty of life. Meanwhile, the keywords for Daddy Yankee's reviews are mostly in Spanish, indicating that his primary market is more likely in South America. By using word clouds for positioning, we can create more appealing songs to attract new listeners in that area. ")
 
             
         #avg pupularity for genre
@@ -322,7 +322,7 @@ def page_music_analysis():
             # df_spo = pd.read_csv('your_dataset.csv')  # You can load your data similarly
             genre_classification(df_spo) 
             st.write("This model uses the random forest algorithm to train a music type classification model, and can ultimately display the model's accuracy and classification report. 0.38 means that the model correctly predicted about 38% of the samples. It can be seen from the classification report that the prediction performance of most music types is low, and the precision, recall, and f1-score of many types are low, indicating that the model has large errors. Further optimization of the model may be required to improve classification accuracy.")
-
+            st.write("These infomation from YouTube comments show the emotional engagement of artists with their audience, and their fans' geographical place. It can provide valuable information for targeted marketing and music production. Analyzing the keywords in the word clouds helps us better understand what resonates with the audience, enabling us to devise more effective marketing strategies.")
 
 
         #most common words
